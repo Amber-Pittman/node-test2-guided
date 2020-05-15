@@ -38,5 +38,25 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
     * Integration tests help us to see if our ship is still afloat or if our ship is sinking. That really is the most important thing. 
 
     <p align="center">
-        <img src="assets/unit-testing.jpg" alt="Artwork of the Titantic sinking with small circles on different parts of the ship. The heading says 'passing unit tests' in green text." width=750 /> 
+        <img src="assets/unit-testing.jpg" alt="Artwork of the Titanic sinking with small circles on different parts of the ship. The heading says 'passing unit tests' in green text." width=750 /> 
     </p>
+
+### Code Along
+
+1. In package.json, add some config for JSON for Integration Testing using Jest.
+
+    ```
+    "jest": {
+        "testEnvironment": "node"
+    },
+    ```
+
+2. Try `npm test` now. It's failing because we don't have any tests yet.
+
+3. For Integration Tests, it's usually convention for them to go into their own folder, as opposed to having the test file right next to the file you're testing. 
+
+    * Jest will automatically look for a folder named `__tests__`.
+
+    * Create a new file inside the tests folder called `index.js`.
+
+4. Create a placeholder test just to get things going with the test runner.
