@@ -41,6 +41,8 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
         <img src="assets/unit-testing.jpg" alt="Artwork of the Titanic sinking with small circles on different parts of the ship. The heading says 'passing unit tests' in green text." width=750 /> 
     </p>
 
+    <!-- ![Unit Tests on a Sinking Ship](assests/unit-testing.jpg) -->
+
 ### Code Along
 
 1. In package.json, add some config for JSON for Integration Testing using Jest.
