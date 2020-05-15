@@ -20,6 +20,6 @@
 		"sqlite3": "^4.1.1"
 	},
 	"jest": {
-        "testEnvironment": "node"
-    }
+		"testEnvironment": "node"
+	}
 }
