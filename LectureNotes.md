@@ -134,20 +134,20 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
         * Since this is something SuperTest does automatically, it's essentially starting the server twice. 
 
-        * We can fix this in a few different ways. 
+    * We can fix this in a few different ways. 
 
-            * Pull the listening code out and put it in a different file. You could put it in a file called server.js and in your test you would import index, not server.  
+        * Pull the listening code out and put it in a different file. You could put it in a file called server.js and in your test you would import index, not server.  
 
-            * The easier way is add an if statement around the `server.listen()` code. 
+        * The easier way is add an if statement around the `server.listen()` code. 
 
-                * If the value of module.parent is undefined, start the server. Otherwise, don't start the server. 
+            * If the value of module.parent is undefined, start the server. Otherwise, don't start the server. 
 
-                * All this is saying is: <br> "if this index file is being imported/required into another file, don't actually start the server. Just export the instance of the server but don't start it. Otherwise, if this index file is being run directly with node and it's not being required into anything else, go ahead and start the server."
+            * All this is saying is: <br> "if this index file is being imported/required into another file, don't actually start the server. Just export the instance of the server but don't start it. Otherwise, if this index file is being run directly with node and it's not being required into anything else, go ahead and start the server."
 
-            ```
-            if (module.parent) {
-                server.listen(port, () => {
-                    console.log(`Running at http://localhost:${port}`)
-                })
-            }
-            ```
+        ```
+        if (module.parent) {
+            server.listen(port, () => {
+                console.log(`Running at http://localhost:${port}`)
+            })
+        }
+        ```
