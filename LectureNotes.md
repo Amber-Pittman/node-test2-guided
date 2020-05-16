@@ -41,7 +41,13 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
         <img src="assets/unit-testing.jpg" alt="Artwork of the Titanic sinking with small circles on different parts of the ship. The heading says 'passing unit tests' in green text." width=750 /> 
     </p>
 
-    <!-- ![Unit Tests on a Sinking Ship](assests/unit-testing.jpg) -->
+5. We usually consider 3 questions when we're asserting data from an endpoint.
+
+    * Does it return the expected status code?
+
+    * Does it return the expected data format? - Does it return JSON or does it return something else?
+
+    * Does it return the expected data itself?
 
 ### Code Along
 
@@ -152,4 +158,118 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
                 console.log(`Running at http://localhost:${port}`)
             })
         }
+        ```
+9. Get rid of your placeholder test in your test file. 
+
+    * Import SuperTest
+
+    * Import the server
+
+    * Write our first integration test.
+        
+        * Make a get request to the homepage. 
+        
+        * Give it an async callback this time since we're now working with asynchronous code (promises).
+
+        * Make the test requests to our endpoint with supertest by using await.
+
+        * Call SuperTest as a function
+
+        * Pass the instance of the server into the SuperTest function as the only parameter.
+
+        * Now we make a _real_ call the HTTP request and the endpoint we want
+
+        * Assign the callback to a variable
+
+        * Logout the variable to see what's in there. 
+
+        * Run your test `npm test`.
+            
+            * You'll get a passing test because we're not actually asserting anything at this point. We're not really checking anything in the test, just making a request.
+
+            * We do get a huge object in the console of the terminal. There are some really useful things found in this object that we can now assert against to make sure our endpoint is returning the proper data. 
+
+                * The response body
+
+                * The response headers
+
+                * Status code
+
+        * Run assertions against our response
+
+            * When we're setting up our integration tests, it helps to think of the "Triple A Steps."
+
+                * Arrange, Act, and Assert
+
+            * Arrange some data
+                
+                * create a variable for the endpoint
+
+                * Create a variable for the status code you're expecting
+
+            * Act on the data 
+
+            * Assert the response data
+
+                * The status code
+
+                * Get the expected data format from the content-type header with the value of the content type ought to be. We're expecting the content type to be application/JSON. We want to make sure we're getting JSON.
+
+                    * If you don't want to type out headers with an index of content-type, supertest makes it easy. We can just say res.type
+
+                    * `res.type` is shorthand for `res.headers("content-type")`
+
+                * The expected data itself
+
+                    * What's our response data that we're expecting from our route/endpoint?
+
+                    * We're just expecting a message - you would know this by looking in the index file on the endpoint. Just the simple message is all you'd get back.
+
+                    * We expect the response body's message to be the Welcome message. 
+
+        * Side note: You don't have to arrange you code into chunks in this order. It just helps as a starting point when writing your tests. Sometimes it just makes more sense to just put them inline like we've been doing before. It kind of saves a little code and space. As long as you understand the 3 steps of setting up a test, you can put it however you want it. 
+
+            * We start by arranging some data, acting on that data, and then checking/asserting the data. 
+
+            * Feel free to make this all in-line if that looks nicer to you.
+
+        * Save your file and run the test again using `npm run test:watch` so you don't have to keep restarting your test. Your test should be passing.
+
+        * Experiment:
+
+            * Change the text that gets responded with and that welcome route to "Hello." It should cause the test to fail. We received the value of Hello. but we expected Welcome to our API.
+
+                * Change what your API actually responds with and then run your test again. 
+
+                * Don't forget to change Hello. back to the original message.
+
+            * Instead of testing against the specific string, you could use a regex - kind of a pattern. Instead of saying "Welcome to our API," you could say something like "to match the Regex value of welcome with i to make it case _in_sensitive."
+
+                * Make sure it returns something similar to this pattern that might be a little more flexible.
+
+                * If `/welcome/i` is in the toMatch value, the word welcome better be in there in order to pass. You could replace "welcome" with "api" and the test would pass as long as the message on the endpoint had the word api in it.
+        
+        * We've now completely automated the process of going into insomnia, creating the new endpoint manually, manually testing it every time we make a change, etc. We can write these tests for thousands of endpoints and just run them all at once with a single command. If any one of them stops working at any point in the future, we'll know right away because our tests will start failing.
+            
+
+        ```
+        const supertest = require("supertest")
+        const server = require("../index")
+
+        test("GET /", async () => {
+            // ARRANGE
+            const endpoint = "/"
+            const status = 200
+
+            // ACT
+            const res = await supertest(server).get(endpoint)
+            //console.log(res)
+
+            // ASSERT
+            expect(res.statusCode).toBe(status)
+                // expect(res.headers("content-type")).toBe("application/json") 
+            expect(res.type).toBe("application/json") // Same thing as ^^^
+            expect(res.body.message).toBe("Welcome to our API")
+            expect(res.body.message).toMatch(/api/i)
+        })
         ```
