@@ -270,6 +270,38 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
                 // expect(res.headers("content-type")).toBe("application/json") 
             expect(res.type).toBe("application/json") // Same thing as ^^^
             expect(res.body.message).toBe("Welcome to our API")
-            expect(res.body.message).toMatch(/api/i)
+            //expect(res.body.message).toMatch(/api/i)
         })
+    
         ```
+10. Test an endpoint that actually accesses the database
+
+    * If we were using persisted data in our automated tests like a database connection, we might want to use a separate database that's only used in automated testing. 
+        
+        * That way, we can keep our other dev database (or potentially production database) untouched. We just have a specific database for testing. That would be useful to set up. 
+
+    * In the knexfile, we're connecting to a database file called `hobbits.db3`. We don't want to touch that database during our automated tests. We want to leave that database for manual testing or may that has real data in it. 
+        
+        * We want to work in a separate database when we're testing. We can do that pretty easily with Knex.
+
+        * Inside the knexfile, take the code and put it into a sub-object called development. 
+
+            * Wrap everything in another object called with the key, `development`.
+
+        * Now that we have that in a sub-object of development, that's kind of considered the database environment. 
+        
+    * We can make additional environments. If we wanted to, we could use hobbits.db3 for development while we also use something different for testing. 
+
+        * Make a testing environment and then copy all that code from development into it. Then change the name of the database file from hobbits to hobbits-test.
+
+        * Now we have the ability to work from different database files if we need to, depending on the environment.
+
+            ```
+            module.exports = {
+                development: {...},
+                testing: {...},
+            }
+
+```
+Stopping point at 39:37
+```
