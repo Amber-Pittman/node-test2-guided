@@ -26,4 +26,14 @@ router.get("/:id", async (req, res, next) => {
 	}
 })
 
+router.post("/", async (req, res, next) => {
+	try {
+		const hobbit = await Hobbits.create(req.body)
+		res.status(201).json(hobbit)
+	} catch(err) {
+		next(err)
+	}
+})
+
+
 module.exports = router

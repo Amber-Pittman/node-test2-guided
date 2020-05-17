@@ -1,7 +1,8 @@
 const db = require("../data/config")
 
 async function create(data) {
-	return null
+	const [id] = await db("hobbits").insert(data)
+	return findById(id)
 }
 
 async function update(id, data) {
