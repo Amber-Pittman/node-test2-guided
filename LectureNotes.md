@@ -457,28 +457,28 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
                 This will close our database connection after all of the tests are running and it will get rid of that warning. Our teardown in now complete.
 
-        ```
-        // hobbits.test.js \\
-        const supertest = require("supertest")
-        const server = require("../index")
-        const db = require("../data/config")
+            ```
+            // hobbits.test.js \\
+            const supertest = require("supertest")
+            const server = require("../index")
+            const db = require("../data/config")
 
-        afterAll(async () => {
-            await db.destroy()
-        })
-
-        describe("hobbits integration tests", () => {
-            it("GET /hobbits", async () => {
-                const res = await supertest(server).get("/hobbits")
-
-                expect(res.statusCode).toBe(200)
-                expect(res.type).toBe("application/json")
-                expect(res.body).toHaveLength(4)
-                expect(res.body[0].name).toBe("sam")
-                expect(res.body[2].name).toBe("pippin")
+            afterAll(async () => {
+                await db.destroy()
             })
-        })        
-        ```
+
+            describe("hobbits integration tests", () => {
+                it("GET /hobbits", async () => {
+                    const res = await supertest(server).get("/hobbits")
+
+                    expect(res.statusCode).toBe(200)
+                    expect(res.type).toBe("application/json")
+                    expect(res.body).toHaveLength(4)
+                    expect(res.body[0].name).toBe("sam")
+                    expect(res.body[2].name).toBe("pippin")
+                })
+            })        
+            ```
 
         * Run a new test for getting a hobbit by the ID.
             
@@ -505,6 +505,8 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
                 * In the event the hobbit does not exist, return a 404 status.
 
                 * Then just send it back to the response.
+
+            * The `findById()` isn't doing anything yet. Go into the hobbits-model and under findById(), call return db hobbits where the ID is equal to the ID that we get passed as a parameter. End it with a `.first()`
 
         ```
         // HOBBITS TEST \\
@@ -538,6 +540,13 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
                 next(err)
             }
         })
+
+
+        // HOBBITS MODEL \\
+        
+        function findById(id) {
+            return db("hobbits").where("id", id).first()
+        }
         ```
 
             
