@@ -22,6 +22,11 @@ server.use((err, req, res, next) => {
 	})
 })
 
-server.listen(port, () => {
-	console.log(`Running at http://localhost:${port}`)
-})
+// Keep the if statement permanently, even in production
+if (!module.parent) {
+	server.listen(port, () => {
+		console.log(`Running at http://localhost:${port}`)
+	})
+}
+
+module.exports = server

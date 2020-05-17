@@ -1,10 +1,10 @@
 {
-	"private": true,
+	"private": true,	
 	"scripts": {
-		"test:watch": "jest --watch",
-		"test": "jest",
-		"start:watch": "nodemon index.js",
-		"start": "node index.js"
+		"test:watch": "cross-env NODE_ENV=testing jest --watch",
+		"test": "cross-env NODE_ENV=testing jest",
+		"start:watch": "cross-env NODE_ENV=development nodemon index.js",
+		"start": "cross-env NODE_ENV=production node index.js"
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.2",
@@ -18,5 +18,8 @@
 		"express": "^4.17.1",
 		"knex": "^0.21.1",
 		"sqlite3": "^4.1.1"
+	},
+	"jest": {
+		"testEnvironment": "node"
 	}
 }
