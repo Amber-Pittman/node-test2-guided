@@ -37,13 +37,13 @@ describe("hobbits integration tests", () => {
         expect(res.statusCode).toBe(404)
     }) 
     
-    // it("POST /hobbits", async () => {
-    //     const data = { name: "bilbo" }
-    //     const res = await supertest(server).post("/hobbits").send(data)
+    it("POST /hobbits", async () => {
+        const data = { name: "bilbo" }
+        const res = await supertest(server).post("/hobbits").send(data)
 
-    //     expect(res.statusCode).toBe(201)
-    //     expect(res.type).toBe("application/json")
-    //     expect(res.body.name).toBe("bilbo")
-    // })
+        expect(res.statusCode).toBe(201)
+        expect(res.type).toBe("application/json")
+        expect(res.body.name).toBe("bilbo")
+    })
     
 })

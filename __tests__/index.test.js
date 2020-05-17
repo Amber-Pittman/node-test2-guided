@@ -6,6 +6,11 @@ const supertest = require("supertest")
 const server = require("../index")
 // Gets rid of test leaking
 const db = require("../data/config");
+
+// Fresh database to test against for every single test
+beforeEach(async () => {
+    await db.seed.run()
+})
 // Gets rid of test leaking
 afterAll(async () => {
     await db.destroy()

@@ -508,6 +508,8 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
     * The `findById()` isn't doing anything yet. Go into the hobbits-model and under findById(), call return db hobbits where the ID is equal to the ID that we get passed as a parameter. End it with a `.first()`
 
+        * When we call .first(), we're really calling `LIMIT 1 .SELECT`. The first method is going to return an array by destructuring the variable. `const [hobbit] = db("hobbits").where("id", id).limit(1).select()` turns into `const hobbit = db("hobbits").where(...).first()`.
+
     ```
     // HOBBITS TEST \\
     
@@ -671,5 +673,31 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
         }
         ```
 
-## Test for a 404
-How do you write a test to ask for multiple outcomes with one assertion? You cannot. Your test should only be checking for one thing, for one return value. If you need to test for different outcomes, then maybe that would be time for a different/separate test. 
+## Random Questions
+1. **Q:** How to Test for a 404? <br>
+**A:** How do you write a test to ask for multiple outcomes with one assertion? You cannot. Your test should only be checking for one thing, for one return value. If you need to test for different outcomes, then maybe that would be time for a different/separate test. 
+
+2. **Q:** Where Do we store test coverage if using jest.config? <br> 
+**A:** If we run Jest with coverage flag `npm run test -- --coverage`, it will tell you which pieces of your code has been tested and which pieces have not been tested. It will give you kind of a summary in the command line. 
+
+    A coverage folder gets generated when your run test coverage. If you look in that new coverage folder, under the LCOV report folder, there's an index.html file. It will give you an overview, line by line, of what's in your code. It will tell you what's being tested and what's not. 
+
+    Viewing the index file on our browser, we can go into the hobbits model and we can see that our create model was tested at some point. We'd also see that both our find() and findById() methods were tested. But update() and remove() were never called so they were never tested.
+
+    You can look in your test coverage to see if you need more tests to cover different things that you may have missed before. 
+
+    You want to try to get as much test coverage as possible. Right now, we're at about 82% - 83% test coverage. You aim for 100% but that's not always realistic but you can try to get as close as you can. 
+
+3. **Q:** What's a way to get better at problem solving in general? <br>
+**A:** It just takes a lot of persistence. Don't get discouraged by errors in your console. Look at that as an opportunity to learn how to problem-solve a little better. 
+
+    Seeing a lot of different errors and going through a lot of different scenarios, will really help out with your problem solving skills in general. The biggest thing with that is to just don't be afraid of errors. If you see an error, maybe that should get you kind of excited to delve in and figure out what's actually going on. 
+
+4. **Q:** Have you heard of [Deno](https://deno.land/v1)? <br> 
+**A:** It's sort of like Node 2.0. Deno was created by Ryan Dahl, the same person who created Node. 
+
+5. **Q:** Is Typescript hard to learn?<br> 
+**A:** No. Typescript is basically just JS with some additional syntax for types. Actually, any JS file is valid Typescript. Typescript is just a _superset_, so there's additional stuff on top of it that help with certain things.
+
+6. **Q:** When you use Typescript, do you care about the resulting compiled file? <br>
+**A:** Nope. The output of your typescript is going to look like garbage. However, it's going to work really well because that's optimized. It's not meant to look at, it's meant to run. So no, you don't have to worry about the output files.
