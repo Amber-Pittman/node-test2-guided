@@ -274,7 +274,7 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
         })
     
         ```
-10. Test an endpoint that actually accesses the database
+10. Setup a new database environment for automated testing
 
     * If we were using persisted data in our automated tests like a database connection, we might want to use a separate database that's only used in automated testing. 
         
@@ -296,12 +296,79 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
         * Now we have the ability to work from different database files if we need to, depending on the environment.
 
-            ```
+        ```
             module.exports = {
                 development: {...},
                 testing: {...},
             }
+        ```
 
-```
-Stopping point at 39:37
-```
+    * If you haven't already, install knex. `npm install knex`
+
+    * Go into the console. Run the latest migration and specify the testing environment with `npx knex migrate:latest --env=testing`. 
+        
+        * Side Note: If you wanted to have it check the development environment, you would change the end to `--env=development`. 
+
+        * After running the test migration, we now have hobbits.db3 as well as hobbits-test.db3
+
+    * Seed the test environment as well. `npx knex seed:run --env=testing`
+
+    * While it's easy to run these knex commands from the terminal, we're just running them manually. But what about when our app is running? How do we determine which database to connect to? It's not going to know whether it should connect to the hobbits database or the hobbits-test database. 
+
+        * Look in the data/config file. This is where we can actually specify which database to connect to. 
+
+        * Right now, we're just passing the entire config file to the instance of knex. That's because we weren't specifying environments before. Now that we have 2 different environments, we have to specify which one to use. 
+
+        * In the exports, specify knexfile.development or knexfile.testing.
+
+        * There's a problem with specifying an environment like this though: 
+            
+            * If you specify one, the other won't run. You need both environments. It's static; hardcoded. It'll never connect to the other environment. 
+
+            * It's manual and you'd have to go back every time. 
+
+    * How do we make Jest use the testing database instead, without hardcoding the environment? We want it to be more dynamic. We use an environment variable. We're now dealing in values that are different between environments. 
+
+        * We could use `.env` library and save it in a .env file. 
+
+        * An easier way when we're testing with Jest, we'll use a library called [Cross-Env](https://github.com/kentcdodds/cross-env). 
+        
+        * Cross-Env allows us to set environment variables inline when we run the script itself rather than using a .env file. We just prefix the actual script command with environment variables. Due to differences between how Windows and other OS's handle environment variables, using the Cross-Env library makes it more universal. 
+
+        * Install Cross-Env. `npm install --save-dev cross-env`
+
+        * Go into package.json and add the build script, making sure to reference Cross Env, then the key values for our environment variables (NODE_ENV=production) and then the script we want to run. 
+
+            * In our package, when we call our start:watch commands, we can prefix those with Cross End. Let's create an environment variable called NODE_ENV and set it to development when we're running nodemon. 
+
+            * Add the same thing to our tests and watch commands so that when we run Jest, we want the environment to be testing. 
+
+            * For the start command, set it to production so that it's a little different from the watch command.
+    
+    ```
+    "scripts": {
+        "test:watch": "cross-env NODE_ENV=testing jest --watch",
+        "test": "cross-env NODE_ENV=testing jest",
+        "start:watch": "cross-env NODE_ENV=development nodemon index.js",
+        "start": "cross-env NODE_ENV=production node index.js",
+        "build": "cross-env NODE_ENV=production webpack --config build/webpack.config.js"
+    },
+    ```
+
+    * Now that we have our environment variables setup in the package.json file, how do we use the environment variables in our config file? 
+        
+        * Instead of hardcoding .development, use square brackets, like we're looking up an item from an array, and then we pass `process.env.NODE_ENV`. That will then use the value of that environment variable as the database environment. 
+
+        * If you haven't done this before, you can lookup a value in an object using a variable as the key name if it's wrapped in square brackets.
+
+        * Now, if NODE_ENV is equal to testing, it's going to use the testing environment in the knexfile. If NODE_ENV is development, it's going to use the development environment.
+
+        * If you run this up on Heroku, for example, and you call start, it sets it to production and then it's going to look for a production environment in the knexfile. Since it doesn't exist yet, you'll probably get an error. 
+
+    ```
+    const knex = require("knex")
+    const knexfile = require("../knexfile")
+
+    module.exports = knex(knexfile[process.env.NODE_ENV])
+    ```
+
