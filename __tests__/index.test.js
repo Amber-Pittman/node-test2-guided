@@ -4,6 +4,12 @@
 
 const supertest = require("supertest")
 const server = require("../index")
+// Gets rid of test leaking
+const db = require("../data/config");
+// Gets rid of test leaking
+afterAll(async () => {
+    await db.destroy()
+})
 
 test("GET /", async () => {
     // start by ARRANGING the test data we need

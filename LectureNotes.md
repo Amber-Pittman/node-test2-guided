@@ -159,7 +159,7 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
             * All this is saying is: <br> "if this index file is being imported/required into another file, don't actually start the server. Just export the instance of the server but don't start it. Otherwise, if this index file is being run directly with node and it's not being required into anything else, go ahead and start the server."
 
         ```
-        if (module.parent) {
+        if (!module.parent) {
             server.listen(port, () => {
                 console.log(`Running at http://localhost:${port}`)
             })
@@ -418,11 +418,11 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
             * What should we check for?
 
-                * What's the status code?
+                * What's the status code? **Expect this on every test!**
 
-                * Did we receive a list of hobbits data?
+                * What's the content type? **Expect this on every test!**
 
-                * What's the content type?
+                * Did we receive a list of data? 
 
             * Expect the status code to be 200
 
@@ -438,11 +438,34 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
                 * If you wanted to, you could do another one for a different index. No need to check the entire list, though. 
 
-        * Run the test to see if it passes. `npm run test:watch`
+        * Run the test to see if it passes. `npm run test:watch`. Both the index test and the hobbits test should pass.
+
+            * You may get a weird warning `a worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown.`
+
+                The reason the warning is showing is because when knex  connects to our SQLite database, it keeps that connection open until the server stops. 
+                
+                It keeps that database connection open so when our test is running, our tests don't know to actually close that database connection. The connection just kind of hangs after the test has completed. Therefore, our test runner never actually stops.
+
+            * **_Solution:_** <br>
+                To fix this, all we have to do is go into our test file, import the config file. 
+                    
+                Then, if we use one of the Jest hooks, which is the afterALL() function. "Run this function after all of our tests are finished running." 
+                
+                Make it an asynchronous HOF
+                
+                Call await db.destroy
+
+                This will close our database connection after all of the tests are running and it will get rid of that warning. Our teardown in now complete.
 
         ```
+        // hobbits.test.js \\
         const supertest = require("supertest")
         const server = require("../index")
+        const db = require("../data/config")
+
+        afterAll(async () => {
+            await db.destroy()
+        })
 
         describe("hobbits integration tests", () => {
             it("GET /hobbits", async () => {
@@ -454,6 +477,66 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
                 expect(res.body[0].name).toBe("sam")
                 expect(res.body[2].name).toBe("pippin")
             })
+        })        
+        ```
+
+        * Run a new test for getting a hobbit by the ID.
+            
+            * We have an endpoint for listing all the hobbits. We want to create another endpoint for getting a single hobbit by the ID. And we want a supporting test for it. We will also need to fill out our hobbits-model functions.
+            
+            * Since we're focusing on Test-Driven Development, the first thing we want to do is write the new test inside that describe block. 
+
+                * Say that you're getting the hobbits by ID.
+
+                * Expect a 200 status code
+
+                * Expect the content type to be json
+
+                * Expect the hobbit name to be Frodo
+
+            * If you ran your test, it would fail right now. Expected a 200, received a 404 because the endpoint doesn't exist yet. 
+
+            * Create the new endpoint in the hobbits router file. You can just copy the original endpoint and update it. Make sure you tag the id on the end of the path. 
+
+                * Since we're not returning a list of the hobbits, get rid of the `res.json` call and replace it with a variable. 
+
+                * Instead of `Hobbits.find()`, you'll want to change to the `findById()` method and pass through the ID from the params.
+
+                * In the event the hobbit does not exist, return a 404 status.
+
+                * Then just send it back to the response.
+
+        ```
+        // HOBBITS TEST \\
+        
+        describe("hobbits integration tests", () => {
+            it("GET /hobbits", async () => {...})
+
+            it("GET /hobbits/:id", async () => {
+                const res = await supertest(server).get("/hobbits/2")
+
+                expect(res.statusCode).toBe(200)
+                expect(res.type).toBe("application/json")
+                expect(res.body.name).toBe("frodo")
+            })
+        })
+
+
+        // HOBBITS ROUTER \\
+
+        router.get("/:id", async (req, res, next) => {
+            try {
+                const hobbit = await Hobbits.findById(req.params.id)
+
+                if(!hobbit) {
+                    res.status(404).json({
+                        message: "Hobbit not found"
+                    })
+                }
+                res.json(hobbit)
+            } catch(err) {
+                next(err)
+            }
         })
         ```
 
