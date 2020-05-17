@@ -364,8 +364,7 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
         "test:watch": "cross-env NODE_ENV=testing PORT=5000 jest --watch",
         "test": "cross-env NODE_ENV=testing jest",
         "start:watch": "cross-env NODE_ENV=development nodemon index.js",
-        "start": "cross-env NODE_ENV=production node index.js",
-        "build": "cross-env NODE_ENV=production webpack --config build/webpack.config.js"
+        "start": "cross-env NODE_ENV=production node index.js"
     },
     ```
 
@@ -508,8 +507,10 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
     * The `findById()` isn't doing anything yet. Go into the hobbits-model and under findById(), call return db hobbits where the ID is equal to the ID that we get passed as a parameter. End it with a `.first()`
 
-        * When we call .first(), we're really calling `LIMIT 1 .SELECT`. The first method is going to return an array by destructuring the variable. `const [hobbit] = db("hobbits").where("id", id).limit(1).select()` turns into `const hobbit = db("hobbits").where(...).first()`.
-
+         * The first method is going to return an array by destructuring the variable. `const [hobbit] = db("hobbits").where("id", id).limit(1).select()` turns into `const hobbit = db("hobbits").where(...).first()`. 
+         
+        * When we call .first(), we're really calling `LIMIT 1 .SELECT`. <br>
+       
     ```
     // HOBBITS TEST \\
     
