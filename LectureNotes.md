@@ -352,6 +352,12 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
             * For the start command, set it to production so that it's a little different from the watch command.
 
         * If you wanted to specify the port on other environment variables without a .env file, specify another port on an environment with PORT=5000 (or something like that). You just separate them with spaces.
+            
+            * What about for secret stuff? 
+                
+                * You can't set environment variables this way. If you have secret values, this is only for values that are not sensitive. 
+
+                * If they are sensitive, you have to use .env files. 
     
     ```
     "scripts": {
@@ -384,7 +390,74 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
     module.exports = knex(knexfile[process.env.NODE_ENV])
     ```
 
-11. 
+    
+
+11. Since we're now set up to connect to a test database, let's create a test for an endpoint that already exists. In the hobbits router, the `.get("/")` just lists out all of the hobbits in our database. 
+
+    * Create a new test file called hobbits.test.js inside the test folder. 
+
+    * Import SuperTest and the server.
+
+    * Since we're going to have several different tests in this file, let's wrap them in a describe block. 
+
+        * Describe it as "Hobbits integration tests", give it a HOF
+
+    * Write the new test inside the describe block
+        
+        * It/test and describe it
+
+        * Async callback
+
+        * Using a variable, make the supertest request with await 
+        
+        * Pass in the server to supertest
+
+        * Make the HTTP request to hobbits
+        
+        * Make an assertion. 
+
+            * What should we check for?
+
+                * What's the status code?
+
+                * Did we receive a list of hobbits data?
+
+                * What's the content type?
+
+            * Expect the status code to be 200
+
+            * Expect the type to be application/json
+
+            * Expect the length of the res body to be more than 1 or return a total of 4 hobbits
+
+            * Expect the res body at the index of 0 the name to be Sam
+
+                * Since we have 4 different hobbits, we don't have to make sure we're getting each one specifically. We can just choose one. Let's check the name of the first one that gets returned and make sure it's not empty. 
+
+                * Take a look in the seeds file. You'll see the data has Sam first. 
+
+                * If you wanted to, you could do another one for a different index. No need to check the entire list, though. 
+
+        * Run the test to see if it passes. `npm run test:watch`
+
+        ```
+        const supertest = require("supertest")
+        const server = require("../index")
+
+        describe("hobbits integration tests", () => {
+            it("GET /hobbits", async () => {
+                const res = await supertest(server).get("/hobbits")
+
+                expect(res.statusCode).toBe(200)
+                expect(res.type).toBe("application/json")
+                expect(res.body).toHaveLength(4)
+                expect(res.body[0].name).toBe("sam")
+                expect(res.body[2].name).toBe("pippin")
+            })
+        })
+        ```
+
+            
 
 
 
