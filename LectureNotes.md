@@ -480,62 +480,183 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
             })        
             ```
 
-        * Run a new test for getting a hobbit by the ID.
-            
-            * We have an endpoint for listing all the hobbits. We want to create another endpoint for getting a single hobbit by the ID. And we want a supporting test for it. We will also need to fill out our hobbits-model functions.
-            
-            * Since we're focusing on Test-Driven Development, the first thing we want to do is write the new test inside that describe block. 
+12. Run a new test for getting a hobbit by the ID.
+        
+    * We have an endpoint for listing all the hobbits. We want to create another endpoint for getting a single hobbit by the ID. And we want a supporting test for it. We will also need to fill out our hobbits-model functions.
+    
+    * Since we're focusing on Test-Driven Development, the first thing we want to do is write the new test inside that describe block. 
 
-                * Say that you're getting the hobbits by ID.
+        * Say that you're getting the hobbits by ID.
 
-                * Expect a 200 status code
+        * Expect a 200 status code
 
-                * Expect the content type to be json
+        * Expect the content type to be json
 
-                * Expect the hobbit name to be Frodo
+        * Expect the hobbit name to be Frodo
 
-            * If you ran your test, it would fail right now. Expected a 200, received a 404 because the endpoint doesn't exist yet. 
+    * If you ran your test, it would fail right now. Expected a 200, received a 404 because the endpoint doesn't exist yet. 
 
-            * Create the new endpoint in the hobbits router file. You can just copy the original endpoint and update it. Make sure you tag the id on the end of the path. 
+    * Create the new endpoint in the hobbits router file. You can just copy the original endpoint and update it. Make sure you tag the id on the end of the path. 
 
-                * Since we're not returning a list of the hobbits, get rid of the `res.json` call and replace it with a variable. 
+        * Since we're not returning a list of the hobbits, get rid of the `res.json` call and replace it with a variable. 
 
-                * Instead of `Hobbits.find()`, you'll want to change to the `findById()` method and pass through the ID from the params.
+        * Instead of `Hobbits.find()`, you'll want to change to the `findById()` method and pass through the ID from the params.
 
-                * In the event the hobbit does not exist, return a 404 status.
+        * In the event the hobbit does not exist, return a 404 status.
 
-                * Then just send it back to the response.
+        * Then just send it back to the response.
 
-            * The `findById()` isn't doing anything yet. Go into the hobbits-model and under findById(), call return db hobbits where the ID is equal to the ID that we get passed as a parameter. End it with a `.first()`
+    * The `findById()` isn't doing anything yet. Go into the hobbits-model and under findById(), call return db hobbits where the ID is equal to the ID that we get passed as a parameter. End it with a `.first()`
+
+    ```
+    // HOBBITS TEST \\
+    
+    describe("hobbits integration tests", () => {
+        it("GET /hobbits", async () => {...})
+
+        it("GET /hobbits/:id", async () => {
+            const res = await supertest(server).get("/hobbits/2")
+
+            expect(res.statusCode).toBe(200)
+            expect(res.type).toBe("application/json")
+            expect(res.body.name).toBe("frodo")
+        })
+    })
+
+
+    // HOBBITS ROUTER \\
+
+    router.get("/:id", async (req, res, next) => {
+        try {
+            const hobbit = await Hobbits.findById(req.params.id)
+
+            if(!hobbit) {
+                res.status(404).json({
+                    message: "Hobbit not found"
+                })
+            }
+            res.json(hobbit)
+        } catch(err) {
+            next(err)
+        }
+    })
+
+
+    // HOBBITS MODEL \\
+    
+    function findById(id) {
+        return db("hobbits").where("id", id).first()
+    }
+    ```
+
+13. Test for a hobbit that does not exist.
+
+    * Copy the Get Hobbits By Id test. 
+
+    * Add a note in the description that this test is for nonexistent hobbits. 
+
+    * Provide an ID number that's large enough to not exist.
+
+    * Only assert a 404 status code. It's usually enough to check for the error code. 
+
+
+    ```
+    // HOBBITS TEST \\
+    
+    describe("hobbits integration tests", () => {
+        it("GET /hobbits", async () => {...})
+
+        it("GET /hobbits/:id", async () => {...})
+
+        it("GET /hobbits/:id (NOT FOUND)", async () => {
+            const res = await supertest(server).get("/hobbits/50")
+
+            expect(res.statusCode).toBe(404)
+        })
+    })
+
+
+
+14. Create another endpoint for creating a hobbit. Currently, we have an endpoint to get a list of all hobbits and we have an endpoint to get individual hobbits by their ID. Now we want to create a POST endpoint for creating one. 
+    
+    * Create your variable and make a post request to hobbits. 
+
+    * We need to send some data through a payload. We'll create a data variable that is an object for our new hobbit. Let's give it a name. 
+
+    * Then we _send_ the payload through our supertest request and we say `.send()` and pass in the data variable. That will send it as the request body.
+
+    * Make assertions
+
+        * Since we're creating a new hobbit/resource, the status code should be a 201. 
+
+        * Check for content type.
+
+        * Check for the new hobbits name.
+
+    * Create the actual endpoint on the router file.
+
+        * Call one of the model functions. Since we're creating a new hobbit, use the `create()` function.
+
+        * Pass the request body at the request data. Assign a variable with the Hobbits object to create it and pass in the request body. This is asynchronous, so make sure await is in it.
+
+        * Return it with a status of 201 and pass in the hobbit data. 
+
+    * Implement the create function in the model file.
+
+        * The endpoint is asynchronous. Therefore, the function should start with await.
+
+        * Call the database on the hobbits table
+
+        * Then insert that data that is passed in through the params. It will return a list of new IDs. So we'll destructure that into a single ID by using a variable of ID inside square brackets.
+
+        * Just return the new row that's inserted by the findById method and pass in the ID we received.
+
+    * When the test runs, your tests should pass. But if you try testing again, one of your tests will fail because one of the tests expects the length of the hobbits list to be 4 but after adding Bilbo, the number has changed. Running the test is just going to keep incrementing the number of hobbits on the list.
+
+    * How can we take the new hobbits into account each time to make that value more dynamic? Trick question! We don't change that length assertion. 
+
+        Instead, we want to tackle the problem from a different perspective. We actually want to reset the database each time the test changes something. We essentially want each test to start with a fresh copy of the database.
+
+        To reset the data in the database, we'll use seeding. In the hobbits test file just above the afterAll function, we'll create another hook. We'll use the `beforeEach()` function. It will be async. Inside the beforeEach, call await db and run the seed. 
+
+        Now when we run the test, our tests will pass. Each individual test now has it's own fresh database to test against. It resets every time.
+
+        Remember that our test runner is running against our testing database file, so it's reseeding the test database over and over. Our primary database is not even being touched at all. The `hobbits.db3` file is just staying untouched. 
+
+        By applying the beforeEach hook, our tests are predictable; we know exactly what data is going to be in the database when we run a test. 
+
+    * Save and test again. They should be passing no matter how many times you run them over and over again. 
 
         ```
         // HOBBITS TEST \\
+
+        // resets the testing database for each test
+        beforeEach(async () => {
+            await db.seed.run()
+        })
         
         describe("hobbits integration tests", () => {
             it("GET /hobbits", async () => {...})
 
-            it("GET /hobbits/:id", async () => {
-                const res = await supertest(server).get("/hobbits/2")
+            it("GET /hobbits/:id", async () => {...})
 
-                expect(res.statusCode).toBe(200)
+            it("POST /hobbits", async () => {
+                const data = { name: "bilbo"}
+                const res = await supertest(server).post("/hobbits").send(data)
+
+                expect(res.statusCode).toBe(201)
                 expect(res.type).toBe("application/json")
-                expect(res.body.name).toBe("frodo")
+                expect(res.body.name).toBe("Bilbo")
             })
         })
 
 
         // HOBBITS ROUTER \\
 
-        router.get("/:id", async (req, res, next) => {
+        router.post("/", async (req, res, next) => {
             try {
-                const hobbit = await Hobbits.findById(req.params.id)
-
-                if(!hobbit) {
-                    res.status(404).json({
-                        message: "Hobbit not found"
-                    })
-                }
-                res.json(hobbit)
+                const hobbit = await Hobbits.create(req.body)
+                res.status(201).json(hobbit)
             } catch(err) {
                 next(err)
             }
@@ -544,14 +665,11 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
         // HOBBITS MODEL \\
         
-        function findById(id) {
-            return db("hobbits").where("id", id).first()
+        async function create(data) {
+            const [id] = await db("hobbits").insert(data)
+            return findById(id)
         }
         ```
-
-            
-
-
 
 ## Test for a 404
 How do you write a test to ask for multiple outcomes with one assertion? You cannot. Your test should only be checking for one thing, for one return value. If you need to test for different outcomes, then maybe that would be time for a different/separate test. 
