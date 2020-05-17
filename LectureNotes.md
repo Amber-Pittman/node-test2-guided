@@ -150,6 +150,12 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
             * If the value of module.parent is undefined, start the server. Otherwise, don't start the server. 
 
+                * If a file is being required into another file, then module.parent is going to be the path of that file that's doing the requiring. 
+
+                * It's an easy way to check if a file is kind of just being run as a standalone program or if it's being imported into a different program. 
+                
+                * It can sometimes change the functionality a little bit. In this case, we don't want to start the server if it's being imported into something else because that something else is probably going to start the server. 
+
             * All this is saying is: <br> "if this index file is being imported/required into another file, don't actually start the server. Just export the instance of the server but don't start it. Otherwise, if this index file is being run directly with node and it's not being required into anything else, go ahead and start the server."
 
         ```
@@ -344,10 +350,12 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
             * Add the same thing to our tests and watch commands so that when we run Jest, we want the environment to be testing. 
 
             * For the start command, set it to production so that it's a little different from the watch command.
+
+        * If you wanted to specify the port on other environment variables without a .env file, specify another port on an environment with PORT=5000 (or something like that). You just separate them with spaces.
     
     ```
     "scripts": {
-        "test:watch": "cross-env NODE_ENV=testing jest --watch",
+        "test:watch": "cross-env NODE_ENV=testing PORT=5000 jest --watch",
         "test": "cross-env NODE_ENV=testing jest",
         "start:watch": "cross-env NODE_ENV=development nodemon index.js",
         "start": "cross-env NODE_ENV=production node index.js",
@@ -365,6 +373,10 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
 
         * If you run this up on Heroku, for example, and you call start, it sets it to production and then it's going to look for a production environment in the knexfile. Since it doesn't exist yet, you'll probably get an error. 
 
+    * When we run our server with nodemon, we're going to connect to the dev database. If we run our tests with Jest, it's going to connect to the test database. 
+        
+        * If you start your app in production, like on Heroku with `npm start` to connect a production database which we haven't created/specified yet. You can specify that if you want a different database file for production. 
+
     ```
     const knex = require("knex")
     const knexfile = require("../knexfile")
@@ -372,3 +384,9 @@ In this lecture, we're going to focus on Integration Tests. Integration tests ar
     module.exports = knex(knexfile[process.env.NODE_ENV])
     ```
 
+11. 
+
+
+
+## Test for a 404
+How do you write a test to ask for multiple outcomes with one assertion? You cannot. Your test should only be checking for one thing, for one return value. If you need to test for different outcomes, then maybe that would be time for a different/separate test. 

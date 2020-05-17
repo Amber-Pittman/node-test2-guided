@@ -1,11 +1,10 @@
 {
 	"private": true,
 	"scripts": {
-		"test:watch": "cross-env NODE_ENV=testing jest --watch",
+		"test:watch": "cross-env NODE_ENV=testing PORT=5000 jest --watch",
 		"test": "cross-env NODE_ENV=testing jest",
 		"start:watch": "cross-env NODE_ENV=development nodemon index.js",
 		"start": "cross-env NODE_ENV=production node index.js",
-		"build": "cross-env NODE_ENV=production webpack --config build/webpack.config.js"
 	},
 	"devDependencies": {
 		"cross-env": "^7.0.2",
